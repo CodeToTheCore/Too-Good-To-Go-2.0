@@ -1,0 +1,67 @@
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 60px);
+    gap: 12px;
+    color: var(--gray-400);
+  }
+  .emptyIcon { color: var(--gray-300); }
+  .empty h2 { font-size: 20px; color: var(--gray-700); margin-top: 8px; }
+  .empty p { font-size: 14px; margin-bottom: 8px; }
+  
+  .title { font-size: 24px; font-weight: 800; margin-bottom: 24px; }
+  
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+  @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+  
+  .items { display: flex; flex-direction: column; gap: 12px; }
+  
+  .item {
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .itemImg { width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
+  .itemInfo { flex: 1; }
+  .itemName { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .itemStore { font-size: 12px; color: var(--gray-500); margin-bottom: 4px; }
+  .itemPrice { font-size: 16px; font-weight: 700; color: var(--green); }
+  
+  .itemControls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gray-100);
+    border-radius: var(--radius-full);
+    padding: 4px 10px;
+  }
+  .itemControls button {
+    background: transparent;
+    padding: 2px;
+    color: var(--gray-700);
+    display: flex; align-items: center;
+  }
+  .itemControls span { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
+  
+  .removeBtn { background: transparent; color: var(--gray-400); padding: 6px; transition: color 0.15s; }
+  .removeBtn:hover { color: var(--red); }
+  
+  .summary {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    border: 1px solid var(--gray-200);
+  }
+  .summary h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .summaryRow { display: flex; justify-content: space-between; font-size: 14px; color: var(--gray-600); margin-bottom: 8px; }
+  .divider { border: none; border-top: 1px solid var(--gray-200); margin: 12px 0; }
+  .totalRow { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+  .totalAmt { color: var(--green); font-size: 20px; }
+  .checkoutBtn { width: 100%; justify-content: center; padding: 14px; font-size: 15px; margin-bottom: 12px; }
+  .note { font-size: 12px; color: var(--gray-400); text-align: center; }

@@ -28,7 +28,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'tgtg-middlew
 
 // Proxy all /api/* requests to Python FastAPI
 app.use('/api', createProxyMiddleware({
-  target: process.env.PYTHON_API_URL || 'http://localhost:8000',
+  target: process.env.PYTHON_API_URL || 'http://localhost:8001',
   changeOrigin: true,
   pathRewrite: { '^/api': '' },
   on: {

@@ -1,0 +1,14 @@
+{
+  "name": "too-good-to-go-2.0",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:node": "node ./server/index.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && source venv/bin/activate && uvicorn main:app --reload --port 8001",
+    "dev:all": "concurrently \"npm run dev:node\" \"npm run dev:frontend\" \"npm run start:backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}

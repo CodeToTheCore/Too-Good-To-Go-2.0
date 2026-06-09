@@ -1,0 +1,61 @@
+.hero {
+    background: linear-gradient(135deg, #00a651 0%, #007a3d 100%);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+  .hero p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 28px; }
+  
+  .searchBox {
+    position: relative;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .searchIcon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-400);
+  }
+  .searchInput {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border-radius: var(--radius-full);
+    border: none;
+    font-size: 15px;
+    box-shadow: var(--shadow-md);
+    outline: none;
+    color: var(--gray-900);
+  }
+  
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filterBtn {
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 500;
+    background: white;
+    border: 1.5px solid var(--gray-200);
+    color: var(--gray-700);
+    transition: all 0.15s;
+  }
+  .filterBtn:hover { border-color: var(--green); color: var(--green); }
+  .filterBtn.active { background: var(--green); border-color: var(--green); color: white; }
+  
+  .resultCount { font-size: 14px; color: var(--gray-500); margin-bottom: 16px; }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .empty { text-align: center; padding: 60px; color: var(--gray-400); font-size: 15px; }
