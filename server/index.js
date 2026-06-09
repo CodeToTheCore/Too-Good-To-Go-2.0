@@ -11,12 +11,14 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 
+// Allow both 5173 and 5174 to make requests and connect to WebSockets
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+
 const io = new Server(server, {
-  cors: { origin: ['http://localhost:5173'], credentials: true }
+  cors: { origin: allowedOrigins, credentials: true }
 });
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(morgan('dev'));
 app.use(express.json());
 
