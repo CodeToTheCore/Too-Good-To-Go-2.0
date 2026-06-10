@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { Search, SlidersHorizontal, AlertCircle } from 'lucide-react'
 import StoreCard from '../components/StoreCard'
 import { getStores, getStoreBags } from '../api'
 import styles from './HomePage.module.css'
@@ -10,19 +10,29 @@ export default function HomePage() {
   const [stores, setStores] = useState([])
   const [bagsMap, setBagsMap] = useState({})
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     getStores()
       .then(async res => {
         const storeList = res.data
         setStores(storeList)
-        const bagResults = await Promise.all(storeList.map(s => getStoreBags(s.id).catch(() => ({ data: [] }))))
-        const map = {}
-        storeList.forEach((s, i) => { map[s.id] = bagResults[i].data })
-        setBagsMap(map)
+        if (storeList.length > 0) {
+          const bagResults = await Promise.allSettled(storeList.map(s => getStoreBags(s.id)))
+          const map = {}
+          storeList.forEach((s, i) => {
+            map[s.id] = bagResults[i].status === 'fulfilled' ? bagResults[i].value.data : []
+          })
+          setBagsMap(map)
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load stores:', err)
+        setError('Could not connect to the server. Make sure the backend is running.')
       })
       .finally(() => setLoading(false))
   }, [])
@@ -66,7 +76,19 @@ export default function HomePage() {
         </div>
 
         {loading ? (
-          <div className="loading-spinner"><div className="spinner"/></div>
+          <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:12, padding:'60px 20px'}}>
+            <div className="spinner"/>
+            <p style={{color:'var(--gray-400)', fontSize:14}}>Loading stores...</p>
+          </div>
+        ) : error ? (
+          <div style={{display:'flex', alignItems:'center', gap:10, padding:'24px', background:'#fff3cd', borderRadius:'var(--radius-md)', color:'#856404', border:'1px solid #ffd34e'}}>
+            <AlertCircle size={20}/>
+            <div>
+              <strong>Backend not connected</strong>
+              <p style={{fontSize:13, marginTop:4}}>{error}</p>
+              <p style={{fontSize:12, marginTop:4}}>Run: <code style={{background:'rgba(0,0,0,0.1)', padding:'2px 6px', borderRadius:4}}>uvicorn main:app --reload --port 8001</code> in the backend folder</p>
+            </div>
+          </div>
         ) : filtered.length === 0 ? (
           <div className={styles.empty}>
             <p>No stores found. Try a different search or category.</p>
