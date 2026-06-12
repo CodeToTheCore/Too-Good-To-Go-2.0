@@ -9,9 +9,18 @@ from routers import auth, stores, orders, users, bags
 
 app = FastAPI(title="Too Good To Go API", version="2.0")
 
+# Read an allowed origin from .env, or use a default list
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3001"],
+    allow_origins=[
+        frontend_url,
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",  # 👈 Keeps you covered for your current session!
+        "http://localhost:3001",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

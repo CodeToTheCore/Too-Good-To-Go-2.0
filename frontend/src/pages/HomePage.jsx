@@ -37,11 +37,19 @@ export default function HomePage() {
       .finally(() => setLoading(false))
   }, [])
 
+  // FIXED FILTER: Now tracks both button clicks and text typing
   const filtered = stores.filter(s => {
-    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
-                        s.address.toLowerCase().includes(search.toLowerCase())
-    const matchCat = category === 'All' || s.category === category
-    return matchSearch && matchCat
+    // 1. Category filter logic
+    const matchCategory = category === 'All' || 
+      s.category?.toLowerCase() === category.toLowerCase();
+
+    // 2. Search bar filter logic (Name, City, and Description)
+    const matchSearch = s.name?.toLowerCase().includes(search.toLowerCase()) || 
+      s.city?.toLowerCase().includes(search.toLowerCase()) || 
+      s.description?.toLowerCase().includes(search.toLowerCase());
+
+    // Both conditions must pass
+    return matchCategory && matchSearch;
   })
 
   return (

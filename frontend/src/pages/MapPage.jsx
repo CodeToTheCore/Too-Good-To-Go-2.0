@@ -58,7 +58,7 @@ export default function MapPage() {
           <MapContainer center={[40.73, -73.99]} zoom={13} className={styles.map}>
             <TileLayer
               attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url="https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=YOUR_TOKEN"
             />
             {stores.map(store => (
               <Marker key={store.id} position={[store.latitude, store.longitude]} icon={greenIcon}>

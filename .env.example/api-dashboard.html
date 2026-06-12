@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TGTG 2.0 — API Health Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #fff; }
+  .header p { font-size: 13px; color: #64748b; margin-top: 2px; }
+  .logo { font-size: 28px; }
+
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #1a1d27;
+    border: 1px solid #2d3148;
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .summary-card .num { font-size: 28px; font-weight: 700; }
+  .summary-card .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .num.green { color: #22c55e; }
+  .num.red { color: #ef4444; }
+  .num.yellow { color: #f59e0b; }
+  .num.blue { color: #60a5fa; }
+
+  .section { margin-bottom: 24px; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: #1e2235; }
+
+  .test-grid { display: flex; flex-direction: column; gap: 8px; }
+
+  .test-row {
+    background: #1a1d27;
+    border: 1px solid #2d3148;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 140px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .test-row.pass { border-left: 3px solid #22c55e; }
+  .test-row.fail { border-left: 3px solid #ef4444; }
+  .test-row.loading { border-left: 3px solid #f59e0b; }
+  .test-row.idle { border-left: 3px solid #374151; }
+
+  .method-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .GET { background: #1e3a5f; color: #60a5fa; }
+  .POST { background: #1a3a2a; color: #34d399; }
+  .PATCH { background: #3a2a1a; color: #f59e0b; }
+
+  .test-name { font-size: 13px; font-weight: 500; color: #cbd5e1; }
+  .test-url { font-size: 11px; color: #475569; margin-top: 2px; font-family: monospace; }
+
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #374151;
+    flex-shrink: 0;
+  }
+  .status-dot.pass { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .status-dot.fail { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+  .status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .response-time { font-size: 12px; color: #64748b; min-width: 60px; text-align: right; }
+  .response-time.fast { color: #22c55e; }
+  .response-time.slow { color: #f59e0b; }
+  .response-time.dead { color: #ef4444; }
+
+  .detail-btn {
+    background: transparent;
+    border: 1px solid #2d3148;
+    color: #64748b;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .detail-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+
+  .detail-panel {
+    display: none;
+    background: #0d0f17;
+    border: 1px solid #1e2235;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    font-size: 12px;
+    font-family: monospace;
+    color: #94a3b8;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .detail-panel.open { display: block; }
+
+  .run-btn {
+    background: #00a651;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .run-btn:hover { background: #007a3d; }
+  .run-btn:disabled { background: #374151; cursor: not-allowed; }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .search-fix-card {
+    background: #1a1d27;
+    border: 1px solid #f59e0b44;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .search-fix-card h3 { color: #f59e0b; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .fix-step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+  .fix-num { background: #f59e0b; color: #0f1117; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .fix-text { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+  .fix-text code { background: #0d0f17; padding: 2px 6px; border-radius: 4px; color: #60a5fa; font-size: 12px; }
+
+  .search-tester {
+    background: #1a1d27;
+    border: 1px solid #2d3148;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .search-tester h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #e2e8f0; }
+  .search-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    background: #0d0f17;
+    border: 1px solid #2d3148;
+    color: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+  }
+  .search-input:focus { border-color: #60a5fa; }
+  .search-btn {
+    background: #1e3a5f;
+    color: #60a5fa;
+    border: 1px solid #2d5a8f;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .search-btn:hover { background: #2a4a7f; }
+  .search-result {
+    background: #0d0f17;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    font-family: monospace;
+    color: #94a3b8;
+    min-height: 60px;
+    white-space: pre-wrap;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .last-run { font-size: 12px; color: #475569; }
+
+  input[type="text"].url-override {
+    background: #0d0f17;
+    border: 1px solid #2d3148;
+    color: #94a3b8;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: monospace;
+    width: 260px;
+    outline: none;
+  }
+  input[type="text"].url-override:focus { border-color: #60a5fa; }
+
+  label.url-label { font-size: 12px; color: #64748b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🛍️</div>
+  <div>
+    <h1>Too Good To Go 2.0 — API Health Dashboard</h1>
+    <p>Tests every endpoint in real time. Open this file in your browser while your servers are running.</p>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="run-btn" id="runAllBtn" onclick="runAll()">▶ Run All Tests</button>
+  <div>
+    <label class="url-label">Backend URL:</label><br/>
+    <input type="text" class="url-override" id="backendUrl" value="http://localhost:8001"/>
+  </div>
+  <div>
+    <label class="url-label">Middleware URL:</label><br/>
+    <input type="text" class="url-override" id="middlewareUrl" value="http://localhost:3001"/>
+  </div>
+  <span class="last-run" id="lastRun">Not run yet</span>
+</div>
+
+<div class="summary-bar">
+  <div class="summary-card"><div class="num green" id="passCount">—</div><div class="label">Passing</div></div>
+  <div class="summary-card"><div class="num red" id="failCount">—</div><div class="label">Failing</div></div>
+  <div class="summary-card"><div class="num yellow" id="totalCount">—</div><div class="label">Total Tests</div></div>
+  <div class="summary-card"><div class="num blue" id="avgTime">—</div><div class="label">Avg Response</div></div>
+</div>
+
+<!-- Search Fix Card -->
+<div class="search-fix-card">
+  <h3>⚠️ Search Not Finding Addresses? Here's Why + Fix</h3>
+  <div class="fix-step">
+    <div class="fix-num">1</div>
+    <div class="fix-text">The search in <code>HomePage.jsx</code> only filters client-side — it only searches names already loaded. If the backend returns 0 stores, there's nothing to search. Run the tests below first to confirm stores exist.</div>
+  </div>
+  <div class="fix-step">
+    <div class="fix-num">2</div>
+    <div class="fix-text">Address search requires the backend <code>?city=</code> and <code>?category=</code> params to work. Test them in the Search Tester below — if they return data, your backend is fine and it's a frontend filter issue.</div>
+  </div>
+  <div class="fix-step">
+    <div class="fix-num">3</div>
+    <div class="fix-text">The fix: in <code>frontend/src/pages/HomePage.jsx</code>, change the filter to also match on <code>s.city</code> and <code>s.description</code>:<br/><code>s.city?.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase())</code></div>
+  </div>
+  <div class="fix-step">
+    <div class="fix-num">4</div>
+    <div class="fix-text">If NO stores show at all: run <code>cd backend && python seed.py</code> then restart uvicorn. The <code>tgtg_dev.db</code> file may be empty or missing.</div>
+  </div>
+</div>
+
+<!-- Live Search Tester -->
+<div class="search-tester">
+  <h3>🔍 Live Search Tester — test your backend search directly</h3>
+  <div class="search-row">
+    <input class="search-input" id="searchCity" placeholder="City (e.g. New York)" value="New York"/>
+    <input class="search-input" id="searchCategory" placeholder="Category (e.g. bakery)" value=""/>
+    <input class="search-input" id="searchName" placeholder="Store name contains..." value=""/>
+    <button class="search-btn" onclick="testSearch()">Search Backend</button>
+  </div>
+  <div class="search-result" id="searchResult">Results will appear here...</div>
+</div>
+
+<!-- Tests -->
+<div class="section">
+  <div class="section-title">Core Services</div>
+  <div class="test-grid" id="coreTests"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">Auth Endpoints</div>
+  <div class="test-grid" id="authTests"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">Stores & Bags</div>
+  <div class="test-grid" id="storeTests"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">Orders & Users</div>
+  <div class="test-grid" id="orderTests"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">External API Keys</div>
+  <div class="test-grid" id="externalTests"></div>
+</div>
+
+<script>
+const TESTS = {
+  core: [
+    { method: 'GET', name: 'Python backend health', path: 'backend:/health', expect: 200 },
+    { method: 'GET', name: 'Node middleware health', path: 'middleware:/health', expect: 200 },
+    { method: 'GET', name: 'Middleware → backend proxy', path: 'middleware:/api/health', expect: 200 },
+    { method: 'GET', name: 'FastAPI docs available', path: 'backend:/docs', expect: 200 },
+  ],
+  auth: [
+    { method: 'GET', name: 'Auth /me (no token → 401)', path: 'backend:/auth/me', expect: 401 },
+    { method: 'POST', name: 'Login demo user', path: 'backend:/auth/login', body: { email: 'demo@tgtg.com', password: 'demo1234' }, expect: 200, saveToken: true },
+    { method: 'POST', name: 'Register new user', path: 'backend:/auth/register', body: { email: `test_${Date.now()}@tgtg.com`, password: 'test1234', full_name: 'Test User' }, expect: 200 },
+    { method: 'GET', name: 'Get /me with token', path: 'backend:/auth/me', useToken: true, expect: 200 },
+  ],
+  stores: [
+    { method: 'GET', name: 'List all stores', path: 'backend:/stores/', expect: 200, checkArray: true },
+    { method: 'GET', name: 'Filter by city=New York', path: 'backend:/stores/?city=New+York', expect: 200, checkArray: true },
+    { method: 'GET', name: 'Filter by category=bakery', path: 'backend:/stores/?category=bakery', expect: 200, checkArray: true },
+    { method: 'GET', name: 'Get store #1', path: 'backend:/stores/1', expect: 200 },
+    { method: 'GET', name: 'Get store #1 bags', path: 'backend:/stores/1/bags', expect: 200, checkArray: true },
+    { method: 'GET', name: 'Get all bags', path: 'backend:/bags/', expect: 200, checkArray: true },
+    { method: 'GET', name: 'Stores via middleware proxy', path: 'middleware:/api/stores/', expect: 200, checkArray: true },
+  ],
+  orders: [
+    { method: 'GET', name: 'My orders (no token → 401)', path: 'backend:/orders/my', expect: 401 },
+    { method: 'GET', name: 'My orders (with token)', path: 'backend:/orders/my', useToken: true, expect: 200 },
+    { method: 'GET', name: 'My favorites (with token)', path: 'backend:/users/favorites', useToken: true, expect: 200 },
+    { method: 'GET', name: 'My profile (with token)', path: 'backend:/users/profile', useToken: true, expect: 200 },
+  ],
+  external: [
+    { method: 'GET', name: 'Stripe API reachable', path: 'external:https://api.stripe.com/v1/charges', stripeCheck: true },
+    { method: 'GET', name: 'Cloudinary reachable', path: 'external:https://api.cloudinary.com', cloudinaryCheck: true },
+    { method: 'GET', name: 'SendGrid reachable', path: 'external:https://api.sendgrid.com', sendgridCheck: true },
+    { method: 'GET', name: 'OpenStreetMap tiles', path: 'external:https://tile.openstreetmap.org/1/0/0.png', expect: 200 },
+  ]
+};
+
+let authToken = null;
+let results = {};
+
+function getBackendUrl() { return document.getElementById('backendUrl').value.replace(/\/$/, ''); }
+function getMiddlewareUrl() { return document.getElementById('middlewareUrl').value.replace(/\/$/, ''); }
+
+function resolveUrl(path) {
+  if (path.startsWith('backend:')) return getBackendUrl() + path.replace('backend:', '');
+  if (path.startsWith('middleware:')) return getMiddlewareUrl() + path.replace('middleware:', '');
+  if (path.startsWith('external:')) return path.replace('external:', '');
+  return path;
+}
+
+function renderTests() {
+  ['core', 'auth', 'stores', 'orders', 'external'].forEach(group => {
+    const container = document.getElementById(group + 'Tests');
+    container.innerHTML = '';
+    TESTS[group === 'stores' ? 'stores' : group === 'orders' ? 'orders' : group].forEach((test, i) => {
+      const id = `${group}_${i}`;
+      const row = document.createElement('div');
+      row.className = 'test-row idle';
+      row.id = `row_${id}`;
+      row.innerHTML = `
+        <span class="method-badge ${test.method}">${test.method}</span>
+        <div>
+          <div class="test-name">${test.name}</div>
+          <div class="test-url">${resolveUrl(test.path)}</div>
+        </div>
+        <span class="response-time" id="time_${id}">—</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="detail-btn" onclick="toggleDetail('${id}')">details</button>
+          <div class="status-dot" id="dot_${id}"></div>
+        </div>
+      `;
+      const detail = document.createElement('div');
+      detail.className = 'detail-panel';
+      detail.id = `detail_${id}`;
+      container.appendChild(row);
+      container.appendChild(detail);
+    });
+  });
+}
+
+function toggleDetail(id) {
+  const panel = document.getElementById(`detail_${id}`);
+  panel.classList.toggle('open');
+}
+
+async function runTest(group, test, i) {
+  const id = `${group}_${i}`;
+  const row = document.getElementById(`row_${id}`);
+  const dot = document.getElementById(`dot_${id}`);
+  const timeEl = document.getElementById(`time_${id}`);
+  const detail = document.getElementById(`detail_${id}`);
+
+  row.className = 'test-row loading';
+  dot.className = 'status-dot loading';
+  timeEl.textContent = '...';
+
+  const start = performance.now();
+  let pass = false;
+  let info = '';
+
+  try {
+    if (test.path.startsWith('external:')) {
+      // For external APIs just do a fetch with no-cors
+      const url = test.path.replace('external:', '');
+      try {
+        const res = await fetch(url, { method: 'GET', mode: 'no-cors', signal: AbortSignal.timeout(5000) });
+        pass = true;
+        info = `✅ Reachable (opaque response — CORS restricted but server is up)\nURL: ${url}`;
+      } catch (e) {
+        pass = false;
+        info = `❌ Not reachable: ${e.message}\nURL: ${url}\nNote: Make sure you have internet connection. API key issues show up at runtime, not here.`;
+      }
+    } else {
+      const url = resolveUrl(test.path);
+      const opts = {
+        method: test.method,
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(8000),
+      };
+      if (test.useToken && authToken) {
+        opts.headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      if (test.body) {
+        opts.body = JSON.stringify(test.body);
+      }
+
+      const res = await fetch(url, opts);
+      const elapsed = Math.round(performance.now() - start);
+      let data = null;
+      try { data = await res.json(); } catch(e) {}
+
+      if (test.saveToken && data?.access_token) {
+        authToken = data.access_token;
+        info += `🔑 Token saved for subsequent tests\n`;
+      }
+
+      const expectedStatus = test.expect;
+      pass = res.status === expectedStatus;
+
+      if (test.checkArray && pass) {
+        pass = Array.isArray(data);
+        if (!pass) info += `⚠️ Expected array, got: ${typeof data}\n`;
+        else info += `✅ Returned ${data.length} item(s)\n`;
+        if (Array.isArray(data) && data.length === 0) {
+          info += `⚠️ Array is EMPTY — run: python seed.py in backend folder\n`;
+          pass = false;
+        }
+      }
+
+      info += `Status: ${res.status} (expected ${expectedStatus}) ${pass ? '✅' : '❌'}\n`;
+      info += `Time: ${elapsed}ms\n`;
+      info += `URL: ${url}\n\n`;
+      if (data) info += `Response:\n${JSON.stringify(data, null, 2).slice(0, 800)}`;
+
+      timeEl.textContent = elapsed + 'ms';
+      timeEl.className = 'response-time ' + (elapsed < 200 ? 'fast' : elapsed < 1000 ? '' : 'slow');
+    }
+  } catch (err) {
+    pass = false;
+    info = `❌ Request failed: ${err.message}\n\nPossible causes:\n`;
+    if (test.path.includes('backend:')) info += '• Python backend not running → run: uvicorn main:app --reload --port 8001\n';
+    if (test.path.includes('middleware:')) info += '• Node middleware not running → run: node server/index.js\n';
+    info += '• Port mismatch — check the URL fields at the top\n';
+    info += '• CORS issue — make sure backend allows localhost:5173 and file://\n';
+    timeEl.textContent = 'ERR';
+    timeEl.className = 'response-time dead';
+  }
+
+  row.className = `test-row ${pass ? 'pass' : 'fail'}`;
+  dot.className = `status-dot ${pass ? 'pass' : 'fail'}`;
+  detail.textContent = info;
+  results[id] = pass;
+  updateSummary();
+}
+
+function updateSummary() {
+  const vals = Object.values(results);
+  const passing = vals.filter(Boolean).length;
+  const failing = vals.filter(v => !v).length;
+  document.getElementById('passCount').textContent = passing;
+  document.getElementById('failCount').textContent = failing;
+  document.getElementById('totalCount').textContent = vals.length;
+}
+
+async function runAll() {
+  results = {};
+  authToken = null;
+  const btn = document.getElementById('runAllBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+
+  const groups = [
+    { key: 'core', tests: TESTS.core },
+    { key: 'auth', tests: TESTS.auth },
+    { key: 'stores', tests: TESTS.stores },
+    { key: 'orders', tests: TESTS.orders },
+    { key: 'external', tests: TESTS.external },
+  ];
+
+  for (const group of groups) {
+    for (let i = 0; i < group.tests.length; i++) {
+      await runTest(group.key, group.tests[i], i);
+      await new Promise(r => setTimeout(r, 80));
+    }
+  }
+
+  const times = Object.keys(results).map(id => {
+    const el = document.getElementById(`time_${id}`);
+    return el ? parseInt(el.textContent) : NaN;
+  }).filter(n => !isNaN(n));
+  const avg = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : 0;
+  document.getElementById('avgTime').textContent = avg ? avg + 'ms' : '—';
+  document.getElementById('lastRun').textContent = 'Last run: ' + new Date().toLocaleTimeString();
+
+  btn.disabled = false;
+  btn.textContent = '▶ Run All Tests';
+}
+
+async function testSearch() {
+  const city = document.getElementById('searchCity').value;
+  const category = document.getElementById('searchCategory').value;
+  const name = document.getElementById('searchName').value;
+  const resultEl = document.getElementById('searchResult');
+  resultEl.textContent = 'Searching...';
+
+  const params = new URLSearchParams();
+  if (city) params.append('city', city);
+  if (category) params.append('category', category);
+
+  const url = `${getBackendUrl()}/stores/?${params.toString()}`;
+
+  try {
+    const res = await fetch(url);
+    let data = await res.json();
+
+    if (name) {
+      data = data.filter(s =>
+        s.name.toLowerCase().includes(name.toLowerCase()) ||
+        s.address.toLowerCase().includes(name.toLowerCase()) ||
+        s.description?.toLowerCase().includes(name.toLowerCase())
+      );
+    }
+
+    if (data.length === 0) {
+      resultEl.textContent = `⚠️ No stores found for these params.\n\nURL tried: ${url}\n\nFix: Run python seed.py in your backend folder, then restart uvicorn.`;
+      return;
+    }
+
+    const summary = data.map(s =>
+      `✅ ${s.name} | ${s.category} | ${s.address} | Rating: ${s.rating}`
+    ).join('\n');
+
+    resultEl.textContent = `Found ${data.length} store(s):\n\n${summary}\n\nFull URL: ${url}`;
+  } catch (err) {
+    resultEl.textContent = `❌ Failed: ${err.message}\n\nBackend might not be running. Check that uvicorn is up on port 8001.`;
+  }
+}
+
+// Init
+renderTests();
+</script>
+</body>
+</html>
