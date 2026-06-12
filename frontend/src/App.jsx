@@ -14,6 +14,7 @@ import ProfilePage from './pages/ProfilePage'
 import FavoritesPage from './pages/FavoritesPage'
 import DashboardPage from './pages/DashboardPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import LandingToggle from './components/LandingToggle'
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
           <Toaster position="top-right" />
+          <LandingToggle />  
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

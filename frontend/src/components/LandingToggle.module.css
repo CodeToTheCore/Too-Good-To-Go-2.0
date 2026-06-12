@@ -1,0 +1,25 @@
+.toggle {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gray-900);
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    transition: all 0.2s;
+  }
+  
+  .toggle:hover {
+    background: var(--green);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(0,166,81,0.35);
+  }
