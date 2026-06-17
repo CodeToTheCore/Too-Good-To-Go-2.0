@@ -13,6 +13,7 @@ export default function HomePage() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
+  const [searchLocation, setSearchLocation] = useState(null)
 
   useEffect(() => {
     setLoading(true)
@@ -38,18 +39,31 @@ export default function HomePage() {
   }, [])
 
   // FIXED FILTER: Now tracks both button clicks and text typing
-  const filtered = stores.filter(s => {
-    // 1. Category filter logic
-    const matchCategory = category === 'All' || 
-      s.category?.toLowerCase() === category.toLowerCase();
+//   const filtered = stores.filter(s => {
+//     // 1. Category filter logic
+//     const matchCategory = category === 'All' || 
+//       s.category?.toLowerCase() === category.toLowerCase();
 
-    // 2. Search bar filter logic (Name, City, and Description)
-    const matchSearch = s.name?.toLowerCase().includes(search.toLowerCase()) || 
-      s.city?.toLowerCase().includes(search.toLowerCase()) || 
-      s.description?.toLowerCase().includes(search.toLowerCase());
+//     // 2. Search bar filter logic (Name, City, and Description)
+//     const matchSearch = s.name?.toLowerCase().includes(search.toLowerCase()) || 
+//       s.city?.toLowerCase().includes(search.toLowerCase()) || 
+//       s.description?.toLowerCase().includes(search.toLowerCase());
 
-    // Both conditions must pass
-    return matchCategory && matchSearch;
+//     // Both conditions must pass
+//     return matchCategory && matchSearch;
+const filtered = stores.filter(s => {
+    const matchCat = category === 'All' || s.category === category
+    if (!matchCat) return false
+    if (!search.trim()) return true
+    const q = search.toLowerCase()
+    return (
+      s.name.toLowerCase().includes(q) ||
+      s.address.toLowerCase().includes(q) ||
+      (s.city || '').toLowerCase().includes(q) ||
+      (s.description || '').toLowerCase().includes(q) ||
+      s.category.toLowerCase().includes(q)
+    )
+
   })
 
   return (
@@ -63,7 +77,7 @@ export default function HomePage() {
             type="text"
             placeholder="Search stores or neighborhoods..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => { setSearch(e.target.value); setSearchLocation(null) }}
             className={styles.searchInput}
           />
         </div>

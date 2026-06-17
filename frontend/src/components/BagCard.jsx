@@ -2,6 +2,15 @@ import { ShoppingCart, Clock, Tag } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import styles from './BagCard.module.css'
 
+// Time formatting helper function
+const to12h = t => { 
+  if(!t) return ''; 
+  const [h,m]=t.split(':'); 
+  const hr=+h%12||12; 
+  const ap=+h>=12?'PM':'AM'; 
+  return +m===0?`${hr} ${ap}`:`${hr}:${m} ${ap}`; 
+}
+
 export default function BagCard({ bag, store }) {
   const { addToCart } = useCart()
   const savings = bag.original_price - bag.discounted_price
@@ -31,8 +40,10 @@ export default function BagCard({ bag, store }) {
         </div>
         <div className={styles.pickup}>
           <Clock size={13}/>
-          <span>Pick up {bag.pickup_start} – {bag.pickup_end}</span>
+          {/* Updated usage here */}
+          <span>Pick up {to12h(bag.pickup_start)} – {to12h(bag.pickup_end)}</span>
         </div>
+        
         <button
           className={`btn btn-primary ${styles.addBtn}`}
           onClick={() => addToCart(bag, store)}
