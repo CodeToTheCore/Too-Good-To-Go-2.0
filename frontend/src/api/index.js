@@ -32,6 +32,17 @@ export const getStoreBags = (id) => api.get(`/api/stores/${id}/bags`)
 export const createStore = (data) => api.post('/api/stores/', data)
 
 export const getAllBags = () => api.get('/api/bags/')
+export const createBag = (data) => api.post('/api/bags/', data)
+export const getIncomingOrders = () => api.get('/api/orders/incoming')
+
+export const getFlexQuote = (storeId, punches) => api.get(`/api/flexpass/quote/${storeId}`, { params: { punches } })
+export const buyFlexPass = (data) => api.post('/api/flexpass/', data)
+export const getMyFlexPasses = () => api.get('/api/flexpass/my')
+export const redeemFlexPass = (id) => api.post(`/api/flexpass/${id}/redeem`)
+
+export const getStoreAddOns = (storeId) => api.get(`/api/addons/store/${storeId}`)
+export const createAddOn = (data) => api.post('/api/addons/', data)
+export const deleteAddOn = (id) => api.delete(`/api/addons/${id}`)
 
 export const createOrder = (data) => api.post('/api/orders/', data)
 export const getMyOrders = () => api.get('/api/orders/my')
@@ -39,6 +50,7 @@ export const updateOrderStatus = (id, status) =>
   api.patch(`/api/orders/${id}/status`, null, { params: { status } })
 
 export const updateProfile = (data) => api.patch('/api/users/profile', null, { params: data })
+export const updateDietary = (data) => api.patch('/api/users/dietary', data)
 export const toggleFavorite = (storeId) => api.post(`/api/users/favorites/${storeId}`)
 export const getFavorites = () => api.get('/api/users/favorites')
 

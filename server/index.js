@@ -18,7 +18,10 @@ const io = new Server(server, {
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(morgan('dev'));
-app.use(express.json());
+// NOTE: do NOT add a global express.json() here. It consumes the request body
+// stream before the proxy can forward it, which makes every proxied POST/PATCH
+// (login, register, checkout, favorites...) hang and time out. JSON parsing is
+// applied per-route below only where this server itself reads the body.
 
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500 });
 app.use(limiter);
@@ -50,7 +53,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log(`Client disconnected: ${socket.id}`));
 });
 
-app.post('/internal/stock-update', (req, res) => {
+app.post('/internal/stock-update', express.json(), (req, res) => {
   const { storeId, bagId, remaining } = req.body;
   io.to(`store_${storeId}`).emit('stock_update', { bagId, remaining });
   res.json({ broadcast: true });

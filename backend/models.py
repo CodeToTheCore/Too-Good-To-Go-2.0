@@ -25,6 +25,8 @@ class User(Base):
     phone = Column(String)
     role = Column(Enum(UserRole), default=UserRole.customer)
     avatar_url = Column(String)
+    dietary_prefs = Column(Text)  # comma-separated: vegetarian,vegan,no_seafood,gluten_free
+    auto_cancel_conflicts = Column(Boolean, default=False)  # hard-block orders that conflict with dietary_prefs
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     orders = relationship("Order", back_populates="user")
@@ -35,6 +37,7 @@ class Store(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(Text)
+    pickup_instructions = Column(Text)  # e.g. "Walk up to the counter and tell the barista you have a TGTG pickup"
     category = Column(String)  # bakery, restaurant, grocery, etc.
     address = Column(String)
     city = Column(String)
@@ -88,11 +91,13 @@ class OrderItem(Base):
     __tablename__ = "order_items"
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"))
-    bag_id = Column(Integer, ForeignKey("magic_bags.id"))
+    bag_id = Column(Integer, ForeignKey("magic_bags.id"), nullable=True)
+    addon_id = Column(Integer, ForeignKey("addons.id"), nullable=True)  # cross-sell line item
     quantity = Column(Integer, default=1)
     price = Column(Float)
     order = relationship("Order", back_populates="items")
     bag = relationship("MagicBag", back_populates="order_items")
+    addon = relationship("AddOn")
 
 class Favorite(Base):
     __tablename__ = "favorites"
@@ -102,6 +107,28 @@ class Favorite(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     user = relationship("User", back_populates="favorites")
     store = relationship("Store", back_populates="favorites")
+
+class AddOn(Base):
+    __tablename__ = "addons"
+    id = Column(Integer, primary_key=True, index=True)
+    store_id = Column(Integer, ForeignKey("stores.id"))
+    name = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    image_url = Column(String)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    store = relationship("Store")
+
+class FlexPass(Base):
+    __tablename__ = "flex_passes"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    store_id = Column(Integer, ForeignKey("stores.id"))
+    total_punches = Column(Integer, default=5)
+    remaining_punches = Column(Integer, default=5)
+    price_paid = Column(Float, default=0.0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    store = relationship("Store")
 
 class Review(Base):
     __tablename__ = "reviews"

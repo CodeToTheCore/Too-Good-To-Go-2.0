@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-from routers import auth, stores, orders, users, bags
+from routers import auth, stores, orders, users, bags, flexpass, addons
 
 app = FastAPI(title="Too Good To Go API", version="2.0")
 
@@ -31,6 +31,8 @@ app.include_router(stores.router, prefix="/stores", tags=["stores"])
 app.include_router(orders.router, prefix="/orders", tags=["orders"])
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(bags.router, prefix="/bags", tags=["bags"])
+app.include_router(flexpass.router, prefix="/flexpass", tags=["flexpass"])
+app.include_router(addons.router, prefix="/addons", tags=["addons"])
 
 @app.get("/health")
 def health_check():

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
+import { DeviceProvider, useDevice } from './context/DeviceContext'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -15,28 +16,52 @@ import FavoritesPage from './pages/FavoritesPage'
 import DashboardPage from './pages/DashboardPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import LandingToggle from './components/LandingToggle'
+import HowItWorks from './components/HowItWorks'
+import DeviceToggle from './components/DeviceToggle'
+import './device.css'
+
+function AppShell() {
+  const { mobile } = useDevice()
+  const content = (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/stores/:id" element={<StorePage />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute ownerOnly><DashboardPage /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </>
+  )
+
+  return (
+    <>
+      {mobile
+        ? <div className="deviceBackdrop"><div className="deviceFrame">{content}</div></div>
+        : content}
+      <Toaster position="top-right" />
+      <LandingToggle />
+      <HowItWorks />
+      <DeviceToggle />
+    </>
+  )
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/stores/:id" element={<StorePage />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
-            <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute ownerOnly><DashboardPage /></ProtectedRoute>} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-          <Toaster position="top-right" />
-          <LandingToggle />  
+          <DeviceProvider>
+            <AppShell />
+          </DeviceProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

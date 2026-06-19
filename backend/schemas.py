@@ -20,9 +20,15 @@ class UserOut(BaseModel):
     full_name: str
     role: UserRole
     avatar_url: Optional[str]
+    dietary_prefs: Optional[str] = None
+    auto_cancel_conflicts: Optional[bool] = False
     created_at: datetime
     class Config:
         from_attributes = True
+
+class DietaryUpdate(BaseModel):
+    dietary_prefs: List[str] = []
+    auto_cancel_conflicts: bool = False
 
 class Token(BaseModel):
     access_token: str
@@ -32,6 +38,7 @@ class Token(BaseModel):
 class StoreCreate(BaseModel):
     name: str
     description: Optional[str]
+    pickup_instructions: Optional[str] = None
     category: str
     address: str
     city: str
@@ -42,6 +49,7 @@ class StoreOut(BaseModel):
     id: int
     name: str
     description: Optional[str]
+    pickup_instructions: Optional[str] = None
     category: str
     address: str
     city: str
@@ -52,6 +60,7 @@ class StoreOut(BaseModel):
     rating: float
     total_ratings: int
     is_active: bool
+    owner_id: Optional[int] = None
     class Config:
         from_attributes = True
 
@@ -83,13 +92,44 @@ class BagOut(BaseModel):
     class Config:
         from_attributes = True
 
+class AddOnCreate(BaseModel):
+    store_id: int
+    name: str
+    price: float
+    image_url: Optional[str] = None
+
+class AddOnOut(BaseModel):
+    id: int
+    store_id: int
+    name: str
+    price: float
+    image_url: Optional[str] = None
+    class Config:
+        from_attributes = True
+
+class FlexPassCreate(BaseModel):
+    store_id: int
+    total_punches: int = 5
+
+class FlexPassOut(BaseModel):
+    id: int
+    store_id: int
+    store_name: Optional[str] = None
+    total_punches: int
+    remaining_punches: int
+    price_paid: float
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
 class OrderItemCreate(BaseModel):
     bag_id: int
     quantity: int = 1
 
 class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
-    notes: Optional[str]
+    addon_ids: List[int] = []
+    notes: Optional[str] = None
 
 class OrderOut(BaseModel):
     id: int

@@ -4,6 +4,7 @@ import L from 'leaflet'
 import { Link } from 'react-router-dom'
 import { Search, MapPin, Navigation, SlidersHorizontal, X, Star, ShoppingBag, Clock, ChevronDown } from 'lucide-react'
 import { getStores, getStoreBags } from '../api'
+import { to12h } from '../utils/time'
 import toast from 'react-hot-toast'
 import styles from './MapPage.module.css'
 import 'leaflet/dist/leaflet.css'
@@ -318,7 +319,7 @@ export default function MapPage() {
                         <div className={styles.bagInfo}>
                           <ShoppingBag size={12} style={{color:'var(--green)'}}/>
                           <span>{bagsCount} bag{bagsCount !== 1 ? 's' : ''} left</span>
-                          {bags[0]?.pickup_start && <><Clock size={11}/>{bags[0].pickup_start}–{bags[0].pickup_end}</>}
+                          {bags[0]?.pickup_start && <><Clock size={11}/>{to12h(bags[0].pickup_start)}–{to12h(bags[0].pickup_end)}</>}
                         </div>
                         {minPrice && <span className={styles.price}>from ${minPrice.toFixed(2)}</span>}
                       </div>

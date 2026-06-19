@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getMyOrders } from '../api'
 import { format } from 'date-fns'
 import { Package, CheckCircle, Clock, QrCode } from 'lucide-react'
+import PickupWindow from '../components/PickupWindow'
 import styles from './OrdersPage.module.css'
 
 const STATUS_COLORS = {
@@ -45,6 +46,17 @@ export default function OrdersPage() {
                   <Clock size={13}/> {format(new Date(order.created_at), 'MMM d, yyyy HH:mm')}
                 </div>
               </div>
+
+              {order.items?.[0]?.pickup_start && order.status !== 'collected' && order.status !== 'cancelled' && (
+                <PickupWindow
+                  start={order.items[0].pickup_start}
+                  end={order.items[0].pickup_end}
+                  address={order.items[0].store_address}
+                  lat={order.items[0].store_lat}
+                  lng={order.items[0].store_lng}
+                  storeName={order.items[0].store_name}
+                />
+              )}
 
               <div className={styles.items}>
                 {order.items?.map((item, i) => (

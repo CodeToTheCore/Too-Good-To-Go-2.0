@@ -1,0 +1,44 @@
+/* Phone-frame preview. Applied only when the Mobile-view toggle is on. */
+.deviceBackdrop {
+  min-height: 100vh;
+  background: #1f2937;
+  background-image: radial-gradient(circle at 50% 0%, #374151, #111827);
+  padding: 28px 0 96px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* The phone. The app scrolls inside it; the device itself stays put. */
+.deviceFrame {
+  width: 390px;
+  max-width: 94vw;
+  height: 844px;
+  max-height: 88vh;
+  background: #fff;
+  border-radius: 44px;
+  border: 12px solid #0b1220;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+/* notch */
+.deviceFrame::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  display: block;
+  width: 150px;
+  height: 26px;
+  margin: 0 auto;
+  background: #0b1220;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  z-index: 5000;
+}
+
+/* Inside the narrow frame, collapse multi-column grids to a single column so
+   the existing pages read like a real phone layout without separate code. */
+.deviceFrame [class*='grid'] { grid-template-columns: 1fr !important; }
+.deviceFrame [class*='statsGrid'] { grid-template-columns: repeat(3, 1fr) !important; }

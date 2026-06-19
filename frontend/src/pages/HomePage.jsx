@@ -20,7 +20,7 @@ export default function HomePage() {
     setError(null)
     getStores()
       .then(async res => {
-        const storeList = res.data
+        const storeList = Array.isArray(res.data) ? res.data : []
         setStores(storeList)
         if (storeList.length > 0) {
           const bagResults = await Promise.allSettled(storeList.map(s => getStoreBags(s.id)))
@@ -48,7 +48,6 @@ export default function HomePage() {
 //     const matchSearch = s.name?.toLowerCase().includes(search.toLowerCase()) || 
 //       s.city?.toLowerCase().includes(search.toLowerCase()) || 
 //       s.description?.toLowerCase().includes(search.toLowerCase());
-
 //     // Both conditions must pass
 //     return matchCategory && matchSearch;
 const filtered = stores.filter(s => {

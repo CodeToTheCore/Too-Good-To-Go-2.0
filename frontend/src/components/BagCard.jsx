@@ -1,15 +1,7 @@
 import { ShoppingCart, Clock, Tag } from 'lucide-react'
 import { useCart } from '../context/CartContext'
+import { to12h } from '../utils/time'
 import styles from './BagCard.module.css'
-
-// Time formatting helper function
-const to12h = t => { 
-  if(!t) return ''; 
-  const [h,m]=t.split(':'); 
-  const hr=+h%12||12; 
-  const ap=+h>=12?'PM':'AM'; 
-  return +m===0?`${hr} ${ap}`:`${hr}:${m} ${ap}`; 
-}
 
 export default function BagCard({ bag, store }) {
   const { addToCart } = useCart()

@@ -1,0 +1,67 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4000;
+  padding: 20px;
+  animation: fade 0.2s ease;
+}
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+
+.modal {
+  position: relative;
+  background: #fff;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px 28px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: pop 0.25s ease;
+}
+@keyframes pop { from { transform: scale(0.94); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: none;
+  background: var(--gray-100, #f1f1f1);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray-600, #555);
+}
+.close:hover { background: var(--gray-200, #e2e2e2); }
+
+.emoji { font-size: 64px; line-height: 1; margin-bottom: 12px; }
+.stepLabel { font-size: 13px; font-weight: 700; color: var(--green, #16a34a); letter-spacing: 0.5px; text-transform: uppercase; }
+.title { font-size: 26px; font-weight: 800; margin: 6px 0 12px; color: var(--gray-900, #111); }
+.body { font-size: 16px; line-height: 1.55; color: var(--gray-600, #555); }
+
+.dots { display: flex; gap: 8px; justify-content: center; margin: 22px 0; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--gray-300, #d4d4d4); transition: all 0.2s; }
+.activeDot { background: var(--green, #16a34a); width: 24px; border-radius: 5px; }
+
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.back, .next {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 12px;
+}
+.back { background: transparent; color: var(--gray-600, #555); }
+.next { background: var(--green, #16a34a); color: #fff; flex: 1; justify-content: center; }
+.next:hover { filter: brightness(1.05); }

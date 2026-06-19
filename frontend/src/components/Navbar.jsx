@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ShoppingBag, Map, Heart, Package, User, LogOut, LayoutDashboard, ShoppingCart } from 'lucide-react'
+import { ShoppingBag, Map, Heart, Package, User, LogOut, LayoutDashboard, ShoppingCart, HelpCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { openHowItWorks } from './HowItWorks'
+import FavoritesBell from './FavoritesBell'
 import styles from './Navbar.module.css'
 
 export default function Navbar() {
@@ -26,6 +28,10 @@ export default function Navbar() {
         <div className={styles.links}>
           <Link to="/" className={styles.link}><ShoppingBag size={18}/>Stores</Link>
           <Link to="/map" className={styles.link}><Map size={18}/>Map</Link>
+          <button type="button" onClick={openHowItWorks} className={styles.link}
+                  style={{ background:'none', border:'none', cursor:'pointer', font:'inherit' }}>
+            <HelpCircle size={18}/>How it works
+          </button>
           {user && <Link to="/favorites" className={styles.link}><Heart size={18}/>Favorites</Link>}
           {user && <Link to="/orders" className={styles.link}><Package size={18}/>Orders</Link>}
           {user?.role === 'store_owner' && <Link to="/dashboard" className={styles.link}><LayoutDashboard size={18}/>Dashboard</Link>}
@@ -34,6 +40,7 @@ export default function Navbar() {
         <div className={styles.actions}>
           {user ? (
             <>
+              <FavoritesBell />
               <Link to="/cart" className={styles.cartBtn}>
                 <ShoppingCart size={20}/>
                 {count > 0 && <span className={styles.cartBadge}>{count}</span>}
