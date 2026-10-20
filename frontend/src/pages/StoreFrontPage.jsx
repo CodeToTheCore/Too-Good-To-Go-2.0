@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const stores = [
   { id: 1, name: "Green Bistro", category: "Restaurant", price: 3.99, originalPrice: 12.00, pickup: "5:00-6:00 PM", rating: 4.5, distance: "0.3 mi" },

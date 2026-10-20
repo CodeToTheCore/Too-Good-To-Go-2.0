@@ -20,7 +20,7 @@ export default function ProfilePage() {
     getMyFlexPasses().then(r => setPasses(Array.isArray(r.data) ? r.data : [])).catch(() => {})
   }, [])
 
-  const usePunch = async (id) => {
+  const redeemPunch = async (id) => {
     try {
       const res = await redeemFlexPass(id)
       setPasses(prev => prev.map(p => p.id === id ? res.data : p))
@@ -150,7 +150,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <button className="btn btn-outline" style={{fontSize:13, padding:'7px 14px'}}
-                        onClick={() => usePunch(p.id)} disabled={p.remaining_punches <= 0}>
+                        onClick={() => redeemPunch(p.id)} disabled={p.remaining_punches <= 0}>
                   {p.remaining_punches > 0 ? 'Use a punch' : 'Used up'}
                 </button>
               </div>

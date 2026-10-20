@@ -10,6 +10,10 @@ def register(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == user_data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
+    # People can sign up as a customer or a store owner. Admin accounts are never
+    # self-service: otherwise anyone could register as an admin.
+    if user_data.role not in (models.UserRole.customer, models.UserRole.store_owner):
+        raise HTTPException(status_code=403, detail="That account type can't be created by sign-up")
     user = models.User(
         email=user_data.email,
         hashed_password=auth_utils.hash_password(user_data.password),

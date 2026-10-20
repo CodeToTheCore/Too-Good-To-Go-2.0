@@ -57,7 +57,7 @@ def create_order(
     # Cross-sell add-on line items
     for addon_id in order_data.addon_ids or []:
         addon = db.query(models.AddOn).filter(models.AddOn.id == addon_id).first()
-        if not addon:
+        if not addon or not addon.is_active:  # deleted add-ons can't be bought
             raise HTTPException(404, f"Add-on {addon_id} not found")
         total += addon.price
         order_items.append(models.OrderItem(addon_id=addon.id, quantity=1, price=addon.price))
@@ -174,6 +174,9 @@ def update_order_status(
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if not order:
         raise HTTPException(404, "Order not found")
+    owned = {s.id for s in db.query(models.Store).filter(models.Store.owner_id == current_user.id).all()}
+    if not (auth_utils.order_store_ids(db, order) & owned):
+        raise HTTPException(403, "Only the store this order is from can update it")
     order.status = status
     db.commit()
     return {"message": "Status updated", "status": status}

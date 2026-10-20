@@ -1,4 +1,4 @@
-import { ShoppingCart, Clock, Tag } from 'lucide-react'
+import { ShoppingCart, Clock } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { to12h } from '../utils/time'
 import styles from './BagCard.module.css'

@@ -11,11 +11,16 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 
+// Which website may call this server. Set FRONTEND_URL in .env when deploying
+// (comma-separate several). Defaults to the Vite dev server.
+const FRONTEND_ORIGINS = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',').map((origin) => origin.trim()).filter(Boolean);
+
 const io = new Server(server, {
-  cors: { origin: ['http://localhost:5173'], credentials: true }
+  cors: { origin: FRONTEND_ORIGINS, credentials: true }
 });
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: FRONTEND_ORIGINS, credentials: true }));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(morgan('dev'));
 // NOTE: do NOT add a global express.json() here. It consumes the request body
@@ -47,13 +52,20 @@ app.use('/api', createProxyMiddleware({
 io.on('connection', (socket) => {
   console.log(`Client connected: ${socket.id}`);
   socket.on('subscribe_store', (storeId) => socket.join(`store_${storeId}`));
-  socket.on('bag_purchased', ({ storeId, bagId, remaining }) => {
-    io.to(`store_${storeId}`).emit('stock_update', { bagId, remaining });
-  });
+  // Stock updates come only from the server (POST /internal/stock-update), never
+  // from a browser: a client-sent "bag_purchased" event could be faked by anyone.
   socket.on('disconnect', () => console.log(`Client disconnected: ${socket.id}`));
 });
 
+// Only the backend on this same machine may broadcast stock changes. Without this
+// check, anyone who could reach the server could push fake "bags left" numbers to
+// every shopper's screen.
+const LOCAL_ADDRESSES = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+
 app.post('/internal/stock-update', express.json(), (req, res) => {
+  if (!LOCAL_ADDRESSES.has(req.socket.remoteAddress)) {
+    return res.status(403).json({ error: 'Internal endpoint' });
+  }
   const { storeId, bagId, remaining } = req.body;
   io.to(`store_${storeId}`).emit('stock_update', { bagId, remaining });
   res.json({ broadcast: true });

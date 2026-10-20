@@ -19,6 +19,7 @@ def create_bag(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user)
 ):
+    auth_utils.require_store_owner(db, bag_data.store_id, current_user)
     bag = models.MagicBag(**bag_data.dict())
     db.add(bag)
     db.commit()
@@ -31,6 +32,9 @@ def update_stock(bag_id: int, quantity: int, db: Session = Depends(get_db),
     bag = db.query(models.MagicBag).filter(models.MagicBag.id == bag_id).first()
     if not bag:
         raise HTTPException(404, "Bag not found")
+    auth_utils.require_store_owner(db, bag.store_id, current_user)
+    if quantity < 0:
+        raise HTTPException(400, "Quantity can't be negative")
     bag.quantity_available = quantity
     db.commit()
     return {"message": "Stock updated", "quantity_available": quantity}

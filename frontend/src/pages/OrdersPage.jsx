@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getMyOrders } from '../api'
 import { format } from 'date-fns'
-import { Package, CheckCircle, Clock, QrCode } from 'lucide-react'
+import { Package, Clock, QrCode } from 'lucide-react'
 import PickupWindow from '../components/PickupWindow'
 import styles from './OrdersPage.module.css'
 

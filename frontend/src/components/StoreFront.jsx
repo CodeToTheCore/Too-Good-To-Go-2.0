@@ -1,4 +1,3 @@
-import React from 'react';
 import './Storefront.css';
 
 const stores = [

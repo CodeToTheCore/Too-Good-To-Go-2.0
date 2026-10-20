@@ -18,9 +18,7 @@ def create_addon(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
-    store = db.query(models.Store).filter(models.Store.id == data.store_id).first()
-    if not store:
-        raise HTTPException(404, "Store not found")
+    auth_utils.require_store_owner(db, data.store_id, current_user)
     addon = models.AddOn(**data.dict())
     db.add(addon)
     db.commit()
@@ -36,6 +34,7 @@ def delete_addon(
     addon = db.query(models.AddOn).filter(models.AddOn.id == addon_id).first()
     if not addon:
         raise HTTPException(404, "Add-on not found")
+    auth_utils.require_store_owner(db, addon.store_id, current_user)
     addon.is_active = False
     db.commit()
     return {"deleted": True}

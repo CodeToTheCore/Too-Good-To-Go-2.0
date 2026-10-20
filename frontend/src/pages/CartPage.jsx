@@ -54,7 +54,7 @@ export default function CartPage() {
         addon_ids: selected,
         notes: ''
       }
-      const res = await createOrder(payload)
+      await createOrder(payload)
       clearCart()
       toast.success('Order placed!')
       navigate('/orders')

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from datetime import datetime
 from models import UserRole, OrderStatus
@@ -124,7 +124,8 @@ class FlexPassOut(BaseModel):
 
 class OrderItemCreate(BaseModel):
     bag_id: int
-    quantity: int = 1
+    # At least 1: a negative quantity used to add stock back and make the total negative
+    quantity: int = Field(1, ge=1, le=20)
 
 class OrderCreate(BaseModel):
     items: List[OrderItemCreate]

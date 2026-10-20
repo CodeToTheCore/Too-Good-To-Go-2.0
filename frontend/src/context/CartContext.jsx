@@ -1,10 +1,31 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 const CartContext = createContext()
 
+const CART_KEY = 'tgtg-cart'
+
+// Load the saved cart so it survives a page refresh
+function loadCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_KEY))
+    return Array.isArray(saved) ? saved : []
+  } catch {
+    return []
+  }
+}
+
 export function CartProvider({ children }) {
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState(loadCart)
+
+  // Save the cart every time it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(items))
+    } catch {
+      // storage can be blocked (private browsing); the cart still works for this visit
+    }
+  }, [items])
 
   const addToCart = (bag, store) => {
     // 1. Check current items FIRST outside of the state setter

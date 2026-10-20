@@ -13,7 +13,7 @@ export default function HomePage() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
-  const [searchLocation, setSearchLocation] = useState(null)
+  const [, setSearchLocation] = useState(null)
 
   useEffect(() => {
     setLoading(true)
